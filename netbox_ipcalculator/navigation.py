@@ -1,5 +1,4 @@
-from extras.plugins import PluginMenuButton, PluginMenuItem
-from utilities.choices import ButtonColorChoices
+from extras.plugins import PluginMenuItem
 
 menu_items = (
     PluginMenuItem(

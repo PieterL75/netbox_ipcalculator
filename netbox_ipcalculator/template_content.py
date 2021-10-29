@@ -1,5 +1,4 @@
 from extras.plugins import PluginTemplateExtension
-from ipam.models import Prefix
 import json
 
 class IPCalcAggregate(PluginTemplateExtension):

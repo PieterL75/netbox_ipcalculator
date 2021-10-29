@@ -10,7 +10,7 @@ Adds an IP Calculator to the views of
 ## Installation
 Update the /opt/netbox/local_requirements.txt with
 
-> git+https://github.com/PieterL75/netbox_ipcalculator.git@v1.0
+> netbox-ipcalculator
 
 Edit the /opt/netbox/netbox/netbox/ and add the plugin
 > PLUGINS = ['netbox_ipcalculator']

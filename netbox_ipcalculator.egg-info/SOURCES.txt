@@ -1,0 +1,15 @@
+MANIFEST.in
+setup.py
+netbox_ipcalculator/__init__.py
+netbox_ipcalculator/navigation.py
+netbox_ipcalculator/setup.py
+netbox_ipcalculator/template_content.py
+netbox_ipcalculator/urls.py
+netbox_ipcalculator/views.py
+netbox_ipcalculator.egg-info/PKG-INFO
+netbox_ipcalculator.egg-info/SOURCES.txt
+netbox_ipcalculator.egg-info/dependency_links.txt
+netbox_ipcalculator.egg-info/not-zip-safe
+netbox_ipcalculator.egg-info/top_level.txt
+netbox_ipcalculator/migrations/__init__.py
+netbox_ipcalculator/templates/nb_sentia/core/ipcalc.html

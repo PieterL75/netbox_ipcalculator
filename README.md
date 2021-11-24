@@ -12,7 +12,7 @@ Update the /opt/netbox/local_requirements.txt with
 
 > netbox-ipcalculator
 
-Edit the /opt/netbox/netbox/netbox/ and add the plugin
+Edit the /opt/netbox/netbox/netbox/configuration.py and add the plugin
 > PLUGINS = ['netbox_ipcalculator']
 
 run the ./upgrade.sh 

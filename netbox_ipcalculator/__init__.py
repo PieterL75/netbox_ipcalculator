@@ -4,10 +4,10 @@ class IPCalcultorConfig(PluginConfig):
     name = 'netbox_ipcalculator'
     verbose_name = 'IP Calculator'
     description = 'Sentia Netbox IP Calculator'
-    version = '1.0'
+    version = '1.1'
     author = 'Pieter Lambrecht'
     author_email = 'pieter.lambrecht@sentia.com'
-    base_url = 'sentia'
+    base_url = 'sentia_ipcalc'
     required_settings = []
     default_settings = {
         'loud': False

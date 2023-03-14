@@ -55,11 +55,15 @@
         
             this.setcidr=function(newcidr) {
                 var m;
-                m = newcidr.match(/^[0-9a-fA-F\:\.]+\/\d+$/); //at least match 'something/number'
+                m = newcidr.match(/^[0-9a-fA-F\:\.]+\/[\d\.]+$/); //at least match 'something/number'
                 if (m) { 
                     m=m[0].split('/');
                     this.ip=m[0];
-                    this.pl=parseInt(m[1]);
+                    if (m[1].match(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}?(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)) {
+                        this.pl=this.netmask2cidr(m[1])
+                    } else {
+                        this.pl=parseInt(m[1]);
+                    }
                     return this.calccidr();
                 }
                 return false;
@@ -229,6 +233,18 @@
                     }).replace(m || ' ', '::');
                 } else { // Invalid length
                     return false;
+                }
+            }
+
+            this.netmask2cidr = function(nm) {
+                var m = nm.match(/^(?:\d{1,3}(?:\.|$)){4}/); // IPv4
+                if (m) {
+                    nmcidr = 0
+                    m = m[0].split('.');
+                    for (i = 0; i < m.length; i++) {
+                        nmcidr += parseInt(m[i]).toString(2).replace(/0/g,"").length
+                    }                    
+                    return nmcidr
                 }
             }
         }

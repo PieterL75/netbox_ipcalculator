@@ -8,11 +8,11 @@ Adds an IP Calculator to the views of
 ![IP Calculator image](docs/images/IPCalculator.png)
 
 ## Installation
-Update the /opt/netbox/local_requirements.txt with
+Update the /opt/netbox/local_requirements.txt with **(NB! dash)**
 
-> netbox-ipcalculator
+> netbox-ipcalculator  
 
-Edit the /opt/netbox/netbox/netbox/configuration.py and add the plugin
+Edit the /opt/netbox/netbox/netbox/configuration.py and add the plugin **(NB underscore)**
 > PLUGINS = ['netbox_ipcalculator']
 
 run the ./upgrade.sh 

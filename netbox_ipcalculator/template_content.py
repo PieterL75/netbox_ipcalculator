@@ -1,4 +1,4 @@
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins import PluginTemplateExtension
 import json
 
 class IPCalcAggregate(PluginTemplateExtension):

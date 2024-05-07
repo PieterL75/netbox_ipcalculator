@@ -1,4 +1,4 @@
-from extras.plugins import PluginMenuItem
+from netbox.plugins import PluginMenuItem
 
 menu_items = (
     PluginMenuItem(

@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='netbox_ipcalculator',
     version='1.4.0',
-    description='Sentia IP Calculator',
+    description='Netbox IP Calculator',
     url='https://github.com/PieterL75/netbox_ipcalculator',
     author='Pieter Lambrecht',
     license='Apache 2.0',

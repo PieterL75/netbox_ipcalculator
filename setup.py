@@ -10,7 +10,7 @@ setup(
     version='1.4.0',
     description='Netbox IP Calculator',
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
     url='https://github.com/PieterL75/netbox_ipcalculator',
     author='Pieter Lambrecht',
     license='Apache 2.0',

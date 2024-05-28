@@ -10,7 +10,7 @@ Adds an IP Calculator to the views of
 ## Installation
 
 + v0.0-1.3 --> Netbox <=3.7
-+ v1.4 --> Netbox >=4.0
++ v1.4 --> Netbox >=3.7
 
 Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**
 

@@ -1,4 +1,8 @@
-from netbox.plugins import PluginTemplateExtension
+from netbox.settings import VERSION
+if VERSION.startswith("3."):
+    from extras.plugins import PluginTemplateExtension
+else:
+    from netbox.plugins import PluginTemplateExtension
 import json
 
 class IPCalcAggregate(PluginTemplateExtension):

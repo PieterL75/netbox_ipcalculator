@@ -1,4 +1,8 @@
-from netbox.plugins import PluginConfig
+from netbox.settings import VERSION
+if VERSION.startswith("3."):
+    from extras.plugins import PluginConfig
+else:
+    from netbox.plugins import PluginConfig
 
 class IPCalcultorConfig(PluginConfig):
     name = 'netbox_ipcalculator'

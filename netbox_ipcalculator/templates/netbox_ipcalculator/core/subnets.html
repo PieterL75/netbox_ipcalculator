@@ -1,0 +1,661 @@
+{% block content %}
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+{% include 'netbox_ipcalculator/core/ipcalc.js' %}
+
+var curNetwork = 0;
+var curMask = 0;
+var curComments = {};
+
+
+function updateNetwork()
+{
+ 
+  var newCIDR = document.forms['calc'].elements['prefix'].value;
+  cidr=new cidrcalc();
+  cidr.setcidr(newCIDR);
+
+  var newNetworkStr = cidr.nw;
+  var newMask = cidr.pl;
+
+  var newNetwork = inet_aton(newNetworkStr);
+
+  if (newNetwork === null) {
+    return;
+  }
+
+  if (newMask < 0 || newMask > 32) {
+    alert('The network mask you have entered is invalid');
+    return;
+  }
+
+  if (curMask == 0) {
+    curMask = newMask;
+    curNetwork = newNetwork;
+    startOver();
+  }
+  else if (curMask != newMask && confirm('You are changing the base network from /'+curMask+' to /'+newMask+'. This will reset any changes you have made. Proceed?')) {
+    curMask = newMask;
+    curNetwork = newNetwork;
+
+    startOver();
+  }
+  else {
+    curNetwork = newNetwork;
+
+    recreateTables();
+  }
+}
+
+function startOver()
+{
+  rootSubnet = [0, 0, null];
+
+  recreateTables();
+}
+
+function recreateTables()
+{
+  var calcbody = document.getElementById('calcbody');
+  if (!calcbody) {
+    alert('Body not found');
+    return;
+  }
+
+  while (calcbody.hasChildNodes()) {
+    calcbody.removeChild(calcbody.firstChild);
+  }
+
+  updateNumChildren(rootSubnet);
+  updateDepthChildren(rootSubnet);
+
+  createRow(calcbody, rootSubnet, curNetwork, curMask, [curMask, rootSubnet[1], rootSubnet], rootSubnet[0]);
+
+  document.getElementById('joinHeader').colSpan = (rootSubnet[0] > 0 ? rootSubnet[0] : 1);
+  document.getElementById('col_join').span = (rootSubnet[0] > 0 ? rootSubnet[0] : 1);
+
+  /* Disable joins for subnets with comments. */
+  var joinLocks = {}; // a unique collection of join elements to disable
+
+  for (var addressWithMask in curComments) {
+    let splitAddressMask = addressWithMask.split('/');
+    let addressToLock = inet_aton(splitAddressMask[0]);
+    let upperMaskToLock = splitAddressMask[1];
+    for (let maskToLock = upperMaskToLock; maskToLock >= curMask; maskToLock--) {
+      joinLocks[inet_ntoa(network_address(addressToLock, maskToLock)) + "/" + maskToLock] = true;
+    }
+  }
+
+  for (var lock in joinLocks) {
+    let joinElement = document.getElementById("join_" + lock);
+    if (joinElement) {
+      joinElement.childNodes[0].childNodes[0].onclick = null;
+      joinElement.childNodes[0].childNodes[0].removeAttribute('href');
+      joinElement.childNodes[0].childNodes[0].removeAttribute('title');
+    }
+  };
+
+  createBookmarkHyperlink();
+}
+
+function createBookmarkHyperlink() {
+  var link = document.getElementById('saveLink');
+  if (link) {
+    link.href = '?prefix='+inet_ntoa(curNetwork)
+               +'/'+curMask
+               +'&division='+binToAscii(nodeToString(rootSubnet))
+               +(Object.keys(curComments).length > 0 ? '&comments='+encodeURIComponent(JSON.stringify(curComments)) : "");
+  }
+}
+
+function nodeToString(node)
+{
+  if (node[2]) {
+    return '1'+nodeToString(node[2][0])+nodeToString(node[2][1]);
+  }
+  else {
+    return '0';
+  }
+}
+
+function binToAscii(str)
+{
+  var curOut = '';
+  var curBit = 0;
+  var curChar = 0;
+
+  for (var i=0; i<str.length; i++) {
+    if (str.charAt(i) == '1') {
+      curChar |= 1<<curBit;
+    }
+    curBit++;
+    if (curBit > 3) {
+      curOut += curChar.toString(16);
+      curChar = 0;
+      curBit = 0;
+    }
+  }
+  if (curBit > 0) {
+    curOut += curChar.toString(16);
+  }
+  return str.length+'.'+curOut;
+}
+
+function asciiToBin(str)
+{
+  var re = /([0-9]+)\.([0-9a-f]+)/;
+  var res = re.exec(str);
+  var len = res[1];
+  var encoded = res[2];
+  var out = '';
+  for (var i=0; i< res[1]; i++) {
+    var ch = parseInt(res[2].charAt(Math.floor(i/4)), 16);
+    var pos = i % 4;
+    out += (ch & (1<<pos) ? '1' : '0');
+  }
+  return out;
+}
+
+// Recursive function that creates rows working from the outer most mask and working inwards
+function createRow(calcbody, node, address, mask, labels, depth)
+{
+  if (node[2]) { // We need to go deeper
+    var newlabels = labels;
+    newlabels.push(mask+1);
+    newlabels.push(node[2][0][1]);
+    newlabels.push(node[2][0]);
+    createRow(calcbody, node[2][0], address, mask+1, newlabels, depth-1);
+
+    newlabels = new Array();
+    newlabels.push(mask+1);
+    newlabels.push(node[2][1][1]);
+    newlabels.push(node[2][1]);
+    createRow(calcbody, node[2][1], address+subnet_addresses(mask+1), mask+1, newlabels, depth-1);
+  }
+  else { // Actually create a row
+    var newRow = document.createElement('TR');
+    calcbody.appendChild(newRow);
+
+    /* subnet address */
+    var newCell = document.createElement('TD');
+    newCell.classList.add("col_subnet");
+    newCell.appendChild(document.createTextNode(inet_ntoa(address)+'/'+mask));
+    newRow.appendChild(newCell);
+
+    var addressFirst = address;
+    var addressLast = subnet_last_address(address, mask);
+    var useableFirst = address + 1;
+    var useableLast = addressLast - 1;
+    var numHosts;
+    var addressRange;
+    var usaebleRange;
+    var comment = curComments[inet_ntoa(address) + "/" + mask] || null;
+
+    if (mask == 32) {
+      addressRange = inet_ntoa(addressFirst);
+      useableRange = addressRange;
+      numHosts = 1;
+    }
+    else {
+      addressRange = inet_ntoa(addressFirst)+' - '+inet_ntoa(addressLast);
+      if (mask == 31) {
+	useableRange = addressRange;
+	numHosts = 2;
+      }
+      else {
+	useableRange = inet_ntoa(useableFirst)+' - '+inet_ntoa(useableLast);
+	numHosts = (1 + useableLast - useableFirst);
+      }
+    }
+
+    /* netmask */
+    var newCell = document.createElement('TD');
+    newCell.classList.add("col_netmask");
+    newCell.appendChild(document.createTextNode(inet_ntoa(subnet_netmask(mask))));
+    newRow.appendChild(newCell);
+
+    /* range of addresses */
+    var newCell = document.createElement('TD');
+    newCell.classList.add("col_range");
+    newCell.appendChild(document.createTextNode(addressRange));
+    newRow.appendChild(newCell);
+
+    /* useable addresses */
+    var newCell = document.createElement('TD');
+    newCell.classList.add("col_useable");
+    newCell.appendChild(document.createTextNode(useableRange));
+    newRow.appendChild(newCell);
+
+    /* Hosts */
+    var newCell = document.createElement('TD');
+    newCell.classList.add("col_hosts");
+    newCell.appendChild(document.createTextNode(numHosts));
+    newRow.appendChild(newCell);
+
+    /* Comments */
+    var newCell = document.createElement('TD');
+    var textarea = document.createElement('TEXTAREA');
+    textarea.id = "comment_" + inet_ntoa(network_address(address, mask)) + "/" + mask;
+    textarea.onchange = ((mask, address) => ( function() {
+      var key = inet_ntoa(address) + "/" + mask;
+      var needToRedraw = false;
+
+      if (this.value == null || this.value === "") {
+        needToRedraw = curComments[key] !== undefined;
+        delete curComments[key];
+      } else {
+        needToRedraw = curComments[key] === undefined;
+        curComments[key] = this.value;
+      }
+
+      if (needToRedraw) {
+        recreateTables();
+        // Restore previous focus after redrawing table
+        document.getElementById(this.id).focus();
+      } else {
+        // Just update link if we don't need to redraw.
+        createBookmarkHyperlink();
+      }
+    }))(mask, address); // keep some vars in scope
+
+    newCell.classList.add("col_comments");
+    textarea.innerText = comment;
+    newCell.appendChild(textarea);
+    newRow.appendChild(newCell);
+
+    /* actions */
+
+    var colspan = depth - node[0];
+    lastColumn = null
+
+    for (var i=(labels.length/3)-1; i>=0; i--) {
+      var mask = labels[i*3];
+      var rowspan = labels[(i*3)+1];
+      var joinnode = labels[(i*3)+2];
+
+      var newCell = document.createElement('TD');
+      newCell.classList.add("col_join")
+      newCell.rowSpan = (rowspan > 1 ? rowspan : 1);
+      newCell.colSpan = (colspan > 1 ? colspan : 1);
+      newCell.id = "join_" + inet_ntoa(network_address(address, mask)) + "/" + mask;
+      var newDivision = document.createElement('div');
+      var newLink = document.createElement('a');
+
+      if (i == (labels.length/3)-1 || comment != null) {
+        newCell.classList.add('maskSpan');
+        newLink.onclick = function () { divide(node); return false; };
+        newLink.title = "Divide this /" + mask + " subnet in two";
+        newLink.href = "#";
+      }
+      else {
+        newCell.classList.add('maskSpan');
+        newLink.onclick = newJoin(joinnode);
+        newLink.title = "Merge this /" + mask + " subnet together";
+        newLink.href = "#";
+      }
+      newLink.innerText = "/" + mask;
+      newDivision.appendChild(newLink);
+      newCell.appendChild(newDivision);
+      newRow.insertBefore(newCell,lastColumn);
+      lastColumn=newCell
+
+      colspan = 1; // reset for subsequent cells
+    }
+  }
+}
+
+/* This is necessary because 'joinnode' changes during the scope of the caller */
+function newJoin(joinnode)
+{
+  return function() {
+    join(joinnode);
+    return false; // prevent click event
+  };
+}
+
+function divide(node)
+{
+  node[2] = new Array();
+  node[2][0] = [0, 0, null];
+  node[2][1] = [0, 0, null];
+  recreateTables();
+}
+
+function join(node)
+{
+  /* easy as pie */
+  node[2] = null;
+  recreateTables();
+}
+
+function updateNumChildren(node)
+{
+  if (node[2] == null) {
+    node[1] = 0;
+    return 1;
+  }
+  else {
+    node[1] = updateNumChildren(node[2][0]) + updateNumChildren(node[2][1]);
+    return node[1];
+  }
+}
+
+function updateDepthChildren(node)
+{
+  if (node[2] == null) {
+    node[0] = 0;
+    return 1;
+  }
+  else {
+    node[0] = updateDepthChildren(node[2][0]) + updateDepthChildren(node[2][1]);
+    return node[1];
+  }
+}
+
+var rootSubnet;
+
+// each node is Array:
+// [0] => depth of children, total number of visible children, children
+
+
+function inet_ntoa(addrint)
+{
+  return ((addrint >> 24) & 0xff)+'.'+
+    ((addrint >> 16) & 0xff)+'.'+
+    ((addrint >> 8) & 0xff)+'.'+
+    (addrint & 0xff);
+}
+
+function inet_aton(addrstr)
+{
+  var re = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/;
+  var res = re.exec(addrstr);
+
+  if (res === null) {
+    return null;
+  }
+
+  for (var i=1; i<=4; i++) {
+    if (res[i] < 0 || res[i] > 255) {
+      return null;
+    }
+  }
+
+  return (res[1] << 24) | (res[2] << 16) | (res[3] << 8) | res[4];
+}
+
+function network_address(ip, mask)
+{
+  var maskbits = 0;
+  for (var i=31-mask; i>=0; i--) {
+    ip &= ~ 1<<i;
+  }
+  return ip;
+}
+
+function subnet_addresses(mask)
+{
+  return 1<<(32-mask);
+}
+
+function subnet_last_address(subnet, mask)
+{
+  return subnet + subnet_addresses(mask) - 1;
+}
+
+function subnet_netmask(mask)
+{
+  return network_address(0xffffffff, mask);
+}
+
+function calcOnLoad()
+{
+  // Hack that fixes checkbox state
+  var delayMultiplier = 1;
+//  for (var columnName of 'subnet,netmask,range,useable,hosts,comments,divide,join'.split(',')) {
+  for (var columnName of 'subnet,netmask,range,useable,hosts,comments,join'.split(',')) {
+    var toggleThisElement = (name) => clickElement('cb_' + name);
+    var boundEvent = toggleThisElement.bind(null, columnName);
+    window.setTimeout(boundEvent, delayMultiplier * 25);
+    window.setTimeout(boundEvent, delayMultiplier++ * 25 + 100);
+  }
+
+  args = parseQueryString();
+  if (! args['division']) {
+    args['division']='1.0'
+  }
+if (args['prefix'] && args['division']) {
+    document.forms['calc'].elements['prefix'].value = args['prefix'];
+
+    if (args['comments']) {
+      document.getElementById('cb_comments').checked = true;
+      curComments = JSON.parse(args['comments']);
+    } else {
+      curComments = {};
+    }
+    updateNetwork();
+    var division = asciiToBin(args['division']);
+    rootSubnet = [0, 0, null];
+    if (division != '0') {
+      loadNode(rootSubnet, division);
+    }
+    recreateTables();
+  }
+  else {
+    updateNetwork();
+  }
+}
+
+function loadNode(curNode, division)
+{
+  if (division.charAt(0) == '0') {
+    return division.substr(1);
+  }
+  else {
+    curNode[2] = new Array();
+    curNode[2][0] = [0, 0, null];
+    curNode[2][1] = [0, 0, null];
+
+    division = loadNode(curNode[2][0], division.substr(1));
+    division = loadNode(curNode[2][1], division);
+    return division;
+  }
+}
+
+
+function parseQueryString (str)
+{
+  str = str ? str : location.search;
+  var query = str.charAt(0) == '?' ? str.substring(1) : str;
+  var args = new Object();
+  if (query) {
+    var fields = query.split('&');
+    for (var f = 0; f < fields.length; f++) {
+      var field = fields[f].split('=');
+      args[unescape(field[0].replace(/\+/g, ' '))] =
+	unescape(field[1].replace(/\+/g, ' '));
+    }
+  }
+  return args;
+}
+
+window.onload = calcOnLoad;
+
+function toggleColumn(cb)
+{
+  var cssName = '--display-'+(cb.id.substr(3));
+
+  if (cb.checked) {
+    document.documentElement.style.setProperty(cssName, 'table-cell');
+  }
+  else {
+    document.documentElement.style.setProperty(cssName, 'none');
+  }
+
+  recreateTables(); /* because IE draws lines all over the place with border-collapse */
+}
+
+function clickElement(id) {
+  document.getElementById(id).dispatchEvent(new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true
+  }))
+}
+
+//-->
+</script>
+
+<style type="text/css">
+
+:root {
+  --display-subnet:   table-cell;
+  --display-netmask:  table-cell;
+  --display-range:    table-cell;
+  --display-useable:  table-cell;
+  --display-hosts:    table-cell;
+  --display-comments: none;
+  --display-join:     table-cell;
+}
+
+.col_subnet   { display: var(--display-subnet); }
+.col_netmask  { display: var(--display-netmask); }
+.col_range    { display: var(--display-range); }
+.col_useable  { display: var(--display-useable); }
+.col_hosts    { display: var(--display-hosts); }
+.col_comments { display: var(--display-comments); }
+.col_comments > textarea { height: 2em;}
+.col_join     { display: var(--display-join); }
+
+.maskSpan {
+    text-align: left; 
+    font-family: monospace;
+}
+
+.maskSpan div {
+  text-align: left;
+  float: left;
+}
+
+.kuddos {
+    position: absolute;
+    bottom: 2.5em;
+}
+
+
+</style>
+
+<table>
+<tr valign=top>
+<td>
+
+<h1>Subnet Divider</h1>
+
+<form name="calc" onsubmit="updateNetwork(); return false;" onkeyup="calccidr('sn','cidrout')" onchange="calccidr('sn','cidrout')" >
+
+<table cellspacing="0">
+<tr>
+<td class="label">Network Address/Mask</td>
+</tr>
+<tr>
+<td><input type="text" name="prefix" size="15" maxlength="15" id="sn"></td>
+<td><input type="submit" value="Update Split Table">
+    <input type="button" value="Reset" onclick="if (confirm('This will reset all subnet divisions you have made. Proceed?')) startOver();">
+</td>
+</tr>
+</table>
+
+<p>Show columns:
+<input type="checkbox" id="cb_subnet"   checked  onchange="toggleColumn(this)"><label for="cb_subnet">Subnet address</label>
+<input type="checkbox" id="cb_netmask"  checked  onchange="toggleColumn(this)"><label for="cb_netmask">Netmask</label>
+<input type="checkbox" id="cb_range"    checked  onchange="toggleColumn(this)"><label for="cb_range">Range of addresses</label>
+<input type="checkbox" id="cb_useable"  checked  onchange="toggleColumn(this)"><label for="cb_useable">Useable IPs</label>
+<input type="checkbox" id="cb_hosts"    checked  onchange="toggleColumn(this)"><label for="cb_hosts">Hosts</label>
+<input type="checkbox" id="cb_comments"          onchange="toggleColumn(this)"><label for="cb_comments">Comments</label>
+<input type="checkbox" id="cb_join"     checked  onchange="toggleColumn(this)"><label for="cb_join">Join/Split</label>
+</p>
+</form>
+
+<div class="card">
+    <div class="card-body">
+        <table cellpadding="2" id='cidrout' style="margin-left: 15px;">
+        <colgroup><col align="left" span="4"></colgroup>
+        <tbody>
+        <tr><td>CIDR Info:</td><td colspan="3"><span id='status'>Enter CIDR</span></nobr></td></tr>
+        <tr><td>Address:</td><td id='ip' ></td><td>Info:</td><td id='ipinfo' ></td></tr>
+        <tr><td>Netmask:</td><td id='sm' ></td><td>Wildcard:</td><td id='wc' ></td><td></td></tr>
+        <tr><td>Network:</td><td id='nw' ></td><td>Broadcast:</td><td id='br' ></td><td></td></tr>
+        <tr><td>HostMin:</td><td id='lowhostip' ></td><td>HostMax:</td><td id='highhostip' ></td><td></td></tr>
+        <tr><td>Hosts/Net:</td><td id='maxhosts'  colspan="3"></td></tr>
+        </tbody>
+        </table>
+        <script type="text/javascript">
+        
+        function calccidr(sn,output) {
+            cidr=new cidrcalc();
+            out=$('#'+output);
+            cidrin=$('#'+sn).val();
+            
+            cidr.setcidr(cidrin);
+            if (cidr.ipver>0) {
+                out.find('#ip').html(cidr.ip);
+                out.find('#sm').html(cidr.sm + ' = /' + cidr.pl);
+                out.find('#wc').html(cidr.wc);
+                out.find('#nw').html(cidr.nw);
+                out.find('#br').html(cidr.br);
+                out.find('#lowhostip').html(cidr.firstip);
+                out.find('#highhostip').html(cidr.lastip);
+                out.find('#maxhosts').html(cidr.maxhosts);
+                out.find('#status').html('Valid CIDR - IPv'+cidr.ipver);
+                out.find('#ipinfo').html(cidr.iptype + ' ' + (cidr.rfc1918?'RFC1918 Address':''));
+            } else {
+                out.find('#status').html('Bad CIDR');
+            }
+        }
+        calccidr('sn','cidrout')
+        </script>
+    </div>
+</div>
+</td>
+</tr>
+</table>
+
+<table class="table table-bordered" cellspacing="0" cellpadding="2" style="width: fit-content !important;">
+<colgroup>
+<col id="col_subnet">
+<col id="col_netmask">
+<col id="col_range">
+<col id="col_useable">
+<col id="col_hosts">
+<col id="col_comments">
+<col id="col_join">
+</colgroup>
+<thead>
+<tr>
+<th class="col_subnet"   >Subnet address</th>
+<th class="col_netmask"  >Netmask</th>
+<th class="col_range"    >Range of addresses</th>
+<th class="col_useable"  >Useable IPs</th>
+<th class="col_hosts"    >Hosts</th>
+<th class="col_comments" >Comments</th>
+<th class="col_join"      id="joinHeader">Join/Split</th>
+</tr>
+</thead>
+<tbody id="calcbody">
+<!--tr>
+<td>130.94.203.0/24</td>
+<td>130.94.203.0 - 130.94.203.255</td>
+<td>130.94.203.1 - 130.94.203.254 (254)</td>
+<td>Divide</td>
+</tr-->
+</tbody>
+</table>
+
+<p>If you wish to save this subnetting for later, bookmark <a href="subnets.html" id="saveLink">this hyperlink</a>.</p>
+
+<div class="kuddos">Kuddos to DavidC for the idea and the <a href="https://github.com/davidc/subnets" target="_blank">Git</a> code.</div>
+    
+{% endblock %}

@@ -14,8 +14,10 @@ Adds the ability to visualize the subnetting of a prefix into smaller subnets
 
 ## Installation
 
-| v0.0-1.3 ! Netbox <=3.7 |
-| v1.4.x | Netbox >=3.7 | compatible with v3 and v4
+| IPCalculater Version | NetBox version | Remarks |
+| --- | --- | --- |
+| v0.0-1.3 | Netbox <=3.7 | |
+| v1.4.x | Netbox >=3.7 | compatible with v3 and v4 |
 
 Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**
 

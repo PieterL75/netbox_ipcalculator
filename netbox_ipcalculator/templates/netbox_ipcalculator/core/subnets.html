@@ -286,9 +286,11 @@ function createRow(calcbody, node, address, mask, labels, depth)
 
       if (i == (labels.length/3)-1 || comment != null) {
         newCell.classList.add('maskSpan');
-        newLink.onclick = function () { divide(node); return false; };
-        newLink.title = "Divide this /" + mask + " subnet in two";
-        newLink.href = "#";
+        if (mask < 32) {
+          newLink.onclick = function () { divide(node); return false; };
+          newLink.title = "Divide this /" + mask + " subnet in two";
+          newLink.href = "#";
+        }
       }
       else {
         newCell.classList.add('maskSpan');

@@ -41,7 +41,7 @@
                 out.find('#maxhosts').html(cidr.maxhosts);
                 out.find('#status').html('Valid CIDR - IPv'+cidr.ipver);
                 out.find('#ipinfo').html(cidr.iptype + ' ' + (cidr.rfc1918?'RFC1918 Address':''));
-                $('#subnetsplitter').prop('href', '/plugins/pieterl75_ipcalc/ipcalc/?prefix='+cidr.ip+'/'+cidr.pl)
+                $('#subnetsplitter').prop('href', '/plugins/netbox_ipcalculator/ipcalc/?prefix='+cidr.ip+'/'+cidr.pl)
             } else {
                 out.find('#status').html('Bad CIDR');
             }

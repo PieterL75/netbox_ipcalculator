@@ -3,11 +3,11 @@
 Adds an IP Calculator to the views of
 - Aggregate
 - Prefix
-- Ip Address
+- IP Address
 
-![IP Calculator image](docs/images/IPCalculator.png)
+![IP Calculator image](docs/images/IPCalculator.v1.4.png)
 
-Adds the ability to visualize the subnetting of a prefix into smaller subnets
+Adds the ability to visualize and share the subnetting of a prefix into smaller subnets
 
 ![IP Calculator Subnet divider image](docs/images/IPCalculator.subnetdivider.png)
 
@@ -26,9 +26,19 @@ Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**
 Edit the /opt/netbox/netbox/netbox/configuration.py and add the plugin **(referenced with an underscore)**
 > PLUGINS = ['netbox_ipcalculator']
 
-run the ./upgrade.sh 
-> /opt/netbox# ./upgrade.sh
+Install the plugin 
+> /opt/netbox/venv/bin/python3 -m pip install netbox-ipcalculator
+
+or run the ./upgrade.sh script (takes longer, but assures it will work after upgrades)
+> cd /opt/netbox
+> ./upgrade.sh
+
+
 
 restart nextbox
 > sudo systemctl restart netbox
 
+
+---
+Thanks to DavidC for the idea and the javascript code of the Prefix join/split 
+https://github.com/davidc/subnets

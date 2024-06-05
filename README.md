@@ -40,5 +40,4 @@ restart nextbox
 
 
 ---
-Thanks to DavidC for the idea and the javascript code of the Prefix join/split 
-https://github.com/davidc/subnets
+<sub><sub>Thanks to DavidC for the idea and the javascript code of the Prefix join/split https://github.com/davidc/subnets </sub></sub>

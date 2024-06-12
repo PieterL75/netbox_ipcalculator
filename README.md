@@ -1,6 +1,17 @@
 # IP Calculator
 
-Adds an IP Calculator to the views of
+The calculator is JavaScript based and refreshes as you type. It will calculate the
+- IP Address
+- Network mask
+- Wildcard
+- Network address
+- Broadcast address
+- First Host IP
+- Last Host IP Number of Hosts in the network
+
+Both IPv4 and IPv6 are supported
+
+The IP Calculator is added to the views of
 - Aggregate
 - Prefix
 - IP Address

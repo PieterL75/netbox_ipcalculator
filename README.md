@@ -18,7 +18,7 @@ The IP Calculator is added to the views of
 
 ![IP Calculator image](docs/images/IPCalculator.v1.4.png)
 
-Adds the ability to visualize and share the subnetting of a prefix into smaller subnets
+In addition the plugin adds the ability to visualize and share the subnetting of a prefix into smaller subnets
 
 ![IP Calculator Subnet divider image](docs/images/IPCalculator.subnetdivider.png)
 

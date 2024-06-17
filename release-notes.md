@@ -1,4 +1,8 @@
 # Release Notes
+## v1.4.4
+### Fixes
+* #13 Input length of the subnet divider is too short
+
 ## v1.4.3
 ### New Features
 * #9 Extend IPCalculator page with Join/Split functionality

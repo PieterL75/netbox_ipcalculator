@@ -1,4 +1,11 @@
 # Release Notes
+## v1.4.5
+### Fixes
+* #15 Local jQuery for internet disconnected Netbox environments
+### Other
+* Centralized plugin variables
+* Updated readme
+
 ## v1.4.4
 ### Fixes
 * #13 Input length of the subnet divider is too short

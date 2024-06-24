@@ -30,6 +30,7 @@ In addition the plugin adds the ability to visualize and share the subnetting of
 | v0.0-1.3 | Netbox <=3.7 | |
 | v1.4.x | Netbox >=3.7 | compatible with v3 and v4 |
 
+### Enable the plugin
 Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**
 
 > netbox-ipcalculator
@@ -37,16 +38,19 @@ Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**
 Edit the /opt/netbox/netbox/netbox/configuration.py and add the plugin **(referenced with an underscore)**
 > PLUGINS = ['netbox_ipcalculator']
 
+### Activation Option 1 - Install and activite the plugin, with NetBox 'upgrade.sh' script (fast)
 Install the plugin 
 > /opt/netbox/venv/bin/python3 -m pip install netbox-ipcalculator
 
+collect static files (local jquery copy)
+> /opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py collectstatic 
+
+### Activation Option 2 - Install the plugin and run the NetBox 'upgrade.sh' (most reliable)
 or run the ./upgrade.sh script (takes longer, but assures it will work after upgrades)
 > cd /opt/netbox
 > ./upgrade.sh
 
-
-
-restart nextbox
+### Restart NetBox
 > sudo systemctl restart netbox
 
 

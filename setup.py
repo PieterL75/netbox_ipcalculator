@@ -32,7 +32,7 @@ setup(
     author=getattr(pluginvars,'__author__',''),
     license='Apache 2.0',
     install_requires=[],
-    packages=find_packages(),
+    packages=find_packages(exclude='netbox'),
     include_package_data=True,
     zip_safe=False,
 )

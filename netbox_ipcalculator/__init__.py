@@ -4,7 +4,7 @@ if VERSION.startswith("3."):
 else:
     from netbox.plugins import PluginConfig # type: ignore
 
-from .pluginvars import (
+from ..pluginvars import (
     __version__,
     __name__,
     __verbose_name__,

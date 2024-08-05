@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 # read the contents of your README file
 from pathlib import Path
 
-from netbox_ipcalculator.pluginvars import (
+from PieterL75.netbox_ipcalculator.pluginvars import (
     __version__,
     __name__,
     __description__,

@@ -12,7 +12,7 @@ def read(rel_path):
 
 pluginvars={}
 
-for line in read('netbox_ipcalculator/pluginvars.py').splitlines():
+for line in read('netbox_ipcalculator/__init_.py').splitlines():
     if line.startswith('__'):
         _delim = '"' if '"' in line else "'"
         _data=line.split(_delim)
@@ -32,7 +32,7 @@ setup(
     author=getattr(pluginvars,'__author__',''),
     license='Apache 2.0',
     install_requires=[],
-    packages=find_packages(exclude='netbox'),
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
 )

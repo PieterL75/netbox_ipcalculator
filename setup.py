@@ -1,12 +1,7 @@
 from setuptools import find_packages, setup
-import codecs
-import os.path
 import json
-
-# read the contents of your README file
 from pathlib import Path
-
-here = os.path.abspath(os.path.dirname(__file__))
+here = Path(__file__).parent.resolve()
 
 pluginvars={}
 

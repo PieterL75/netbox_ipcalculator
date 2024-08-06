@@ -5,7 +5,9 @@ else:
     from netbox.plugins import PluginConfig # type: ignore
 
 import json
-with open("pluginvars.json", "r") as pluginvarsfile:
+from pathlib import Path
+here = Path(__file__).parent.resolve()
+with open(f"{here}/pluginvars.json", "r") as pluginvarsfile:
     pluginvars = json.load(pluginvarsfile)
     for pluginvar in pluginvars:
         locals()[f"{pluginvar}"]=pluginvars[pluginvar]

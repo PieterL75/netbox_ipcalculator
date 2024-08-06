@@ -4,16 +4,11 @@ if VERSION.startswith("3."):
 else:
     from netbox.plugins import PluginConfig # type: ignore
 
-from .pluginvars import ( # type: ignore
-    __version__,
-    __name__,
-    __verbose_name__,
-    __base_url__,
-    __description__,
-    __author__,
-    __author_email__,
-    __url__,
-)
+import json
+with open("pluginvars.json", "r") as pluginvarsfile:
+    pluginvars = json.load(pluginvarsfile)
+    for pluginvar in pluginvars:
+        locals()[f"{pluginvar}"]=pluginvars[pluginvar]
 
 class IPCalcultorConfig(PluginConfig):
     name = __name__

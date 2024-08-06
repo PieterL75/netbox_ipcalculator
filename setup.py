@@ -12,7 +12,7 @@ def read(rel_path):
 
 pluginvars={}
 
-for line in read('netbox_ipcalculator/__init_.py').splitlines():
+for line in read('netbox_ipcalculator/pluginvars.py').splitlines():
     if line.startswith('__'):
         _delim = '"' if '"' in line else "'"
         _data=line.split(_delim)

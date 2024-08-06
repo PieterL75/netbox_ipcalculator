@@ -4,14 +4,16 @@ if VERSION.startswith("3."):
 else:
     from netbox.plugins import PluginConfig # type: ignore
 
-__name__ = 'netbox_ipcalculator'
-__verbose_name__ = 'IP Calculator'
-__version__ = '1.4.5'
-__base_url__ = 'netbox_ipcalculator'
-__description__ = 'Netbox IP Calculator and Subnet Splitter'
-__author__ = 'Pieter Lambrecht'
-__author_email__ = 'pieter.lambrecht@gmail.com'
-__url__ = 'https://github.com/PieterL75/netbox_ipcalculator'
+from .pluginvars import ( # type: ignore
+    __version__,
+    __name__,
+    __verbose_name__,
+    __base_url__,
+    __description__,
+    __author__,
+    __author_email__,
+    __url__,
+)
 
 class IPCalcultorConfig(PluginConfig):
     name = __name__

@@ -1,2 +1,5 @@
 recursive-include netbox_ipcalculator/templates *
+recursive-include netbox_ipcalculator/static *
 recursive-include netbox_ipcalculator/ *.json
+
+

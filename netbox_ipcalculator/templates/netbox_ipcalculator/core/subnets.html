@@ -182,7 +182,9 @@ function createRow(calcbody, node, address, mask, labels, depth)
     /* subnet address */
     var newCell = document.createElement('TD');
     newCell.classList.add("col_subnet");
-    newCell.appendChild(document.createTextNode(inet_ntoa(address)+'/'+mask));
+    var addPrefixBtn = "<div class=\"d-flex justify-content-between\"><div>"+inet_ntoa(address)+'/'+mask+"</div><div class=\"btn-list justify-content-end ms-1\"><a href=\"/ipam/prefixes/add/?prefix="+inet_ntoa(address)+'/'+mask+"\" class=\"btn btn-outline-primary btn-sm\" title=\"Add\" target=\"_blank\" style=\"--tblr-btn-padding-y: 0;\"><i class=\"mdi mdi-plus\"></i></a></div></div>"
+    // newCell.appendChild(document.createTextNode(inet_ntoa(address)+'/'+mask));
+    newCell.setHTMLUnsafe(addPrefixBtn);
     newRow.appendChild(newCell);
 
     var addressFirst = address;
@@ -202,12 +204,12 @@ function createRow(calcbody, node, address, mask, labels, depth)
     else {
       addressRange = inet_ntoa(addressFirst)+' - '+inet_ntoa(addressLast);
       if (mask == 31) {
-	useableRange = addressRange;
-	numHosts = 2;
+        useableRange = addressRange;
+        numHosts = 2;
       }
       else {
-	useableRange = inet_ntoa(useableFirst)+' - '+inet_ntoa(useableLast);
-	numHosts = (1 + useableLast - useableFirst);
+        useableRange = inet_ntoa(useableFirst)+' - '+inet_ntoa(useableLast);
+        numHosts = (1 + useableLast - useableFirst);
       }
     }
 

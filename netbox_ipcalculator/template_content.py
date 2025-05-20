@@ -6,7 +6,7 @@ else:
 import json
 
 class IPCalcAggregate(PluginTemplateExtension):
-    model = 'ipam.aggregate'
+    models = ['ipam.aggregate']
 
     def right_page(self):
         output=self.render('netbox_ipcalculator/core/ipcalc.html', extra_context={
@@ -15,7 +15,7 @@ class IPCalcAggregate(PluginTemplateExtension):
         return output
 
 class IPCalcPrefix(PluginTemplateExtension):
-    model = 'ipam.prefix'
+    models = ['ipam.prefix']
 
     def right_page(self):
         output=self.render('netbox_ipcalculator/core/ipcalc.html', extra_context={
@@ -24,7 +24,7 @@ class IPCalcPrefix(PluginTemplateExtension):
         return output
 
 class IPCalcIPAddress(PluginTemplateExtension):
-    model = 'ipam.ipaddress'
+    models = ['ipam.ipaddress']
 
     def right_page(self):
         output=self.render('netbox_ipcalculator/core/ipcalc.html', extra_context={

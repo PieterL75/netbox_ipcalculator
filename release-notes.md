@@ -1,5 +1,14 @@
 # Release Notes
-## v1.4.5
+
+## v1.4.10
+### IMPLEMENTS
+* #20 Update for NetBox v4.3
+
+## v1.4.9
+### IMPLEMENTS
+* #16 Generate prefix from subnet divider view
+
+## v1.4.8
 ### Fixes
 * #15 Local jQuery for internet disconnected Netbox environments
 ### Other

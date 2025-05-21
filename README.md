@@ -27,8 +27,9 @@ In addition the plugin adds the ability to visualize and share the subnetting of
 
 | IPCalculater Version | NetBox version | Remarks |
 | --- | --- | --- |
-| v0.0-1.3 | Netbox <=3.7 | |
-| v1.4.x | Netbox >=3.7 | compatible with v3 and v4 |
+| v0.0-1.3 | <=3.7 | |
+| v1.4.x | >=3.7 and <=4.2 | compatible with v3.7 and upto v4.2 |
+| v1.4.10 | >=4.3 | compatible with v4.3 and higher |
 
 ### Enable the plugin
 Update the /opt/netbox/local_requirements.txt with **(referenced with a dash)**

@@ -1,7 +1,7 @@
 {
     "__name__": "netbox_ipcalculator",
     "__verbose_name__": "IP Calculator",
-    "__version__": "1.4.10",
+    "__version__": "1.4.11",
     "__base_url__": "netbox_ipcalculator",
     "__description__": "Netbox IP Calculator and Subnet Splitter",
     "__author__": "Pieter Lambrecht",

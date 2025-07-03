@@ -1,13 +1,16 @@
+import re
 from netbox.settings import VERSION
-nb_version_split = VERSION.split(".")
-nb_version = (int(nb_version_split[0])*100 + int(nb_version_split[1]))*100 + int(nb_version_split[2])
+
+if (nb_version_match := re.match(r"^v?(\d+)\.(\d+)\.(\d+)", VERSION)) is None:
+    raise ValueError(f"Cannot parse netbox version: {VERSION}")
+
+nb_version_split = nb_version_match.groups()
+nb_version = int(nb_version_split[0])*10000 + int(nb_version_split[1])*100 + int(nb_version_split[2])
 
 if nb_version < 40000:
     from extras.plugins import PluginTemplateExtension
 else:
     from netbox.plugins import PluginTemplateExtension
-
-import json
 
 if nb_version >= 40300:
     class IPCalc(PluginTemplateExtension):
